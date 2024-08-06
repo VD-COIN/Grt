@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Student Search</h2>
+        <input type="text" id="pupilsheer-id" placeholder="Pupilsheer ID" />
+        <input type="text" id="student-id" placeholder="Student ID" />
+        <button onclick="searchStudent()">Search</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8sGSHAWIkG7Jq7DPXg7II1dgFCXZ4_TU",
+            authDomain: "train-e7f95.firebaseapp.com",
+            databaseURL: "https://shool-70ffb-default-rtdb.firebaseio.com/",
+            projectId: "train-e7f95",
+            storageBucket: "train-e7f95.appspot.com",
+            messagingSenderId: "1052862647968",
+            appId: "1:1052862647968:web:0d67b008281f1919ca43c5",
+            measurementId: "G-925WN7STJZ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        async function searchStudent() {
+            const pupilsheerId = document.getElementById('pupilsheer-id').value;
+            const studentId = document.getElementById('student-id').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!pupilsheerId || !studentId) {
+                resultDiv.textContent = 'Please enter both Pupilsheer ID and Student ID.';
+                return;
+            }
+
+            try {
+                const dbRef = ref(database, 'pupilsheer/' + pupilsheerId);
+                const snapshot = await get(dbRef);
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const student = data.find(s => s.id === studentId);
+
+                    if (student) {
+                        resultDiv.textContent = `Name: ${student.name}, Result: ${student.result}`;
+                    } else {
+                        resultDiv.textContent = 'Student ID not found.';
+                    }
+                } else {
+                    resultDiv.textContent = 'Pupilsheer ID not found.';
+                }
+            } catch (error) {
+                console.error('Error retrieving data:', error);
+                resultDiv.textContent = 'An error occurred while retrieving data.';
+            }
+        }
+    </script>
+</body>
+</html>
